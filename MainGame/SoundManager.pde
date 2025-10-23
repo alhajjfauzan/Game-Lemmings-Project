@@ -1,40 +1,77 @@
-import processing.sound.*;
+import ddf.minim.*;
 
 class SoundManager {
-  SoundFile walkSound;
-  SoundFile fallSound;
-  SoundFile dieSound;
-  SoundFile saveSound;
-  
-  SoundManager() {
-    // Load sound files dari folder "data/"
-    // Pastikan file disimpan di folder "data" di project Processing kamu
-    walkSound = new SoundFile(this, "walk.wav");
-    fallSound = new SoundFile(this, "fall.wav");
-    dieSound  = new SoundFile(this, "die.wav");
-    saveSound = new SoundFile(this, "save.wav");
-    bombSound =new SoundFile(this, "bomb.wav");
-    mineSound = new SoundFile(this, "mining.wav");
-    
+  Minim minim;
+  AudioPlayer walkSound;
+  AudioPlayer fallSound;
+  AudioPlayer dieSound;
+  AudioPlayer saveSound;
+  AudioPlayer bombSound;
+  AudioPlayer mineSound;
+  AudioPlayer OpeningBGM;
+  PApplet parent;
+  SoundManager(PApplet p) {
+    parent = p;
+    minim = new Minim(parent);
+    walkSound = minim.loadFile("SE/walk.mp3");
+    fallSound = minim.loadFile("SE/fall.mp3");
+    dieSound  = minim.loadFile("SE/die.mp3");
+    bombSound = minim.loadFile("SE/explode.mp3");
+    mineSound = minim.loadFile("SE/mining.mp3");
+    OpeningBGM= minim.loadFile("SE/bgm.mp3");
   }
   
   void play(String soundName) {
     switch(soundName) {
       case "walk":
-        if (!walkSound.isPlaying()) walkSound.play();
+        playOnce(walkSound);
         break;
       case "fall":
-        fallSound.play();
+        playOnce(fallSound);
         break;
       case "die":
-        dieSound.play();
+        playOnce(dieSound);
         break;
-      case "save":
-        saveSound.play();
+      case "bomb":
+        playOnce(bombSound);
+        break;
+      case "mine":
+        playOnce(mineSound);
+        break;
+      case "bgm":
+        if (!OpeningBGM.isPlaying()) {
+          OpeningBGM.loop();
+        }
         break;
       default:
         println("Sound not found: " + soundName);
         break;
     }
+  }
+
+  void playOnce(AudioPlayer player) {
+    if (player == null) return;
+    if (player.isPlaying()) player.rewind();
+    player.play();
+  }
+
+  void stopAll() {
+    walkSound.pause();
+    fallSound.pause();
+    dieSound.pause();
+    bombSound.pause();
+    mineSound.pause();
+    OpeningBGM.pause();
+  }
+
+  void close() {
+    stopAll();
+    walkSound.close();
+    fallSound.close();
+    dieSound.close();
+    bombSound.close();
+    mineSound.close();
+    OpeningBGM.close();
+    minim.stop();
   }
 }

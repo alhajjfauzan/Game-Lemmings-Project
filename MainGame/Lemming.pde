@@ -7,20 +7,16 @@ class Lemming {
   boolean onGround = false;   // status di tanah
   boolean dead = false;       // status mati
   boolean saved = false;      // status selamat
-  
   Lemming(float startX, float startY) {
     // Inisialisasi posisi awal lemming
     x = startX;
     y = startY;
   }
-  
   void update() {
     if (dead || saved) return;
-    
     // Simulasi gravitasi
     ySpeed += gravity;
     y += ySpeed;
-    
     // Deteksi tanah sederhana (misal di bawah y = 400)
     if (y >= 400) {
       y = 400;
@@ -29,7 +25,6 @@ class Lemming {
     } else {
       onGround = false;
     }
-    
     // Jika di tanah, lemming berjalan
     if (onGround) {
       if (facingRight) {
@@ -38,7 +33,6 @@ class Lemming {
         x -= speed;
       }
     }
-    
     // Deteksi tepi layar → berbalik arah
     if (x <= 0) {
       x = 0;
@@ -47,18 +41,14 @@ class Lemming {
       x = width - 10;
       facingRight = false;
     }
-    
     // Jika jatuh dari terlalu tinggi → mati
     if (y > height) {
       dead = true;
     }
-    
-    // Jika sampai ke area “exit” (misal kanan bawah layar)
     if (x > width - 50 && y >= 380) {
       saved = true;
     }
   }
-  
   void draw() {
     if (dead) {
       fill(200, 0, 0);
@@ -71,7 +61,7 @@ class Lemming {
       ellipse(x, y, 10, 10); // biru = hidup
     }
   }
-  
+
   void applySkill(Skill skill) {
     // Contoh logika sederhana (bisa dikembangkan)
     // Misal skill: "float" → mengurangi gravitasi
@@ -83,12 +73,12 @@ class Lemming {
     //  y += 1;
     //}
   }
-  
-  boolean isDead() { 
-    return dead; 
+
+  boolean isDead() {
+    return dead;
   }
-  
-  boolean isSaved() { 
+
+  boolean isSaved() {
     return saved;
   }
 }

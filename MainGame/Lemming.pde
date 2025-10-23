@@ -7,11 +7,13 @@ class Lemming {
   boolean onGround = false;   // status di tanah
   boolean dead = false;       // status mati
   boolean saved = false;      // status selamat
+  
   Lemming(float startX, float startY) {
     // Inisialisasi posisi awal lemming
     x = startX;
     y = startY;
   }
+  
   void update() {
     if (dead || saved) return;
     // Simulasi gravitasi
@@ -33,14 +35,7 @@ class Lemming {
         x -= speed;
       }
     }
-    // Deteksi tepi layar → berbalik arah
-    if (x <= 0) {
-      x = 0;
-      facingRight = true;
-    } else if (x >= width - 10) {
-      x = width - 10;
-      facingRight = false;
-    }
+    // Border dihapus: Tidak ada deteksi tepi layar lagi
     // Jika jatuh dari terlalu tinggi → mati
     if (y > height) {
       dead = true;
@@ -49,31 +44,55 @@ class Lemming {
       saved = true;
     }
   }
+  
   void draw() {
+    // Tentukan warna berdasarkan status
     if (dead) {
-      fill(200, 0, 0);
-      ellipse(x, y, 8, 8); // merah = mati
+      fill(200, 0, 0); // Merah untuk mati
+      stroke(200, 0, 0);
     } else if (saved) {
-      fill(0, 200, 0);
-      ellipse(x, y, 8, 8); // hijau = selamat
+      fill(0, 200, 0); // Hijau untuk selamat
+      stroke(0, 200, 0);
     } else {
-      fill(0, 0, 255);
-      ellipse(x, y, 10, 10); // biru = hidup
+      fill(0, 0, 255); // Biru untuk hidup
+      stroke(0, 0, 255);
     }
+    // Gambar semut sederhana
+    // Simpan transformasi saat ini
+    pushMatrix();
+    translate(x, y); // Pindah ke posisi lemming
+    // Jika menghadap kiri, flip horizontal
+    if (!facingRight) {
+      scale(-1, 1);
+    }
+    // Kepala (lingkaran kecil)
+    ellipse(0, -5, 6, 6);
+    // Antena (dua garis kecil dari kepala)
+    line(-2, -7, -4, -9);
+    line(2, -7, 4, -9);
+    // Thorax (tubuh tengah, elips)
+    ellipse(0, 0, 8, 6);
+    // Abdomen (tubuh belakang, lingkaran)
+    ellipse(0, 5, 10, 8);
+    // Kaki (6 kaki sederhana, garis)
+    // Kaki depan
+    line(-3, -2, -5, 0);
+    line(3, -2, 5, 0);
+    // Kaki tengah
+    line(-2, 1, -4, 3);
+    line(2, 1, 4, 3);
+    // Kaki belakang
+    line(-1, 4, -3, 6);
+    line(1, 4, 3, 6);
+    // Kembalikan transformasi
+    popMatrix();
   }
-
-  void applySkill(Skill skill) {
-    // Contoh logika sederhana (bisa dikembangkan)
-    // Misal skill: "float" → mengurangi gravitasi
-    //if (skill.type.equals("float")) {
-    //  gravity = 0.2;
-    //}
-    //// Misal skill: "dig" → lemming turun perlahan
-    //else if (skill.type.equals("dig")) {
-    //  y += 1;
+  void applySkill(String skill) {
+    //if (skill.equals("mining")) {
+    //  mining = true;
+    //  miningTimer = 300; // Durasi 5 detik (pada 60 FPS)
     //}
   }
-
   boolean isDead() {
     return dead;
   }

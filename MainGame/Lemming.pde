@@ -1,3 +1,5 @@
+// File: Lemming.pde
+
 class Lemming {
   float x, y;          // posisi lemming
   float speed = 1.5;   // kecepatan berjalan
@@ -8,6 +10,11 @@ class Lemming {
   boolean dead = false;       // status mati
   boolean saved = false;      // status selamat
   
+  // --- Variabel Tambahan untuk Skill ---
+  Skill currentSkill = null; // Menyimpan skill yang sedang aktif
+  boolean isBlocking = false;  // Status untuk skill Blocker
+  // ------------------------------------
+  
   Lemming(float startX, float startY) {
     // Inisialisasi posisi awal lemming
     x = startX;
@@ -15,18 +22,45 @@ class Lemming {
   }
   
   void update() {
-    if (dead || saved) return;
-    // Simulasi gravitasi
-    ySpeed += gravity;
-    y += ySpeed;
-    // Deteksi tanah sederhana (misal di bawah y = 400)
-    if (y >= 400) {
-      y = 400;
-      ySpeed = 0;
-      onGround = true;
-    } else {
-      onGround = false;
+    if (dead || saved) return; // Jangan update jika sudah mati atau selamat
+    
+    // --- Logika Eksekusi Skill ---
+    // Jika lemming punya skill, gunakan skill itu
+    if (currentSkill != null) {
+      currentSkill.use(this);
     }
+    // -----------------------------
+
+    // --- MODIFIKASI: Logika Gravitasi & Deteksi Tanah ---
+    // Cek apakah ada tanah tepat 1 piksel di bawah kaki lemming
+    if (mainGame.terrain.isGround(x, y + 1)) {
+      
+      // Cek apakah lemming mati karena jatuh (jika kecepatan jatuh tinggi)
+      if (ySpeed > 20) {
+         dead = true;
+         mainGame.soundManager.play("die"); // Mainkan suara mati
+      }
+      
+      ySpeed = 0;       // Hentikan kecepatan jatuh
+      onGround = true;    // Set status 'di tanah'
+      
+      // Koreksi posisi agar pas di atas tanah (mencegah tenggelam)
+      y = int(y); 
+      while (mainGame.terrain.isGround(x, y)) {
+         y--;
+      }
+      y++;
+      
+    } else {
+      // Jika tidak ada tanah, lemming 'di udara'
+      onGround = false;
+      ySpeed += gravity; // Terapkan gravitasi
+    }
+    
+    // Terapkan pergerakan vertikal (jatuh atau naik)
+    y += ySpeed;
+    // ----------------------------------------------------
+    
     // Jika di tanah, lemming berjalan
     if (onGround) {
       if (facingRight) {
@@ -35,11 +69,20 @@ class Lemming {
         x -= speed;
       }
     }
-    // Border dihapus: Tidak ada deteksi tepi layar lagi
-    // Jika jatuh dari terlalu tinggi → mati
+    
+    // --- TAMBAHAN: Deteksi Dinding ---
+    // Cek apakah ada dinding di depan lemming (setinggi badannya)
+    if (onGround && mainGame.terrain.isGround(x + (facingRight ? 5 : -5), y - 5)) {
+      facingRight = !facingRight; // Berbalik arah
+    }
+    // ----------------------------------
+
+    // Deteksi batas bawah layar (mati)
     if (y > height) {
       dead = true;
     }
+    
+    // Deteksi Pintu Keluar (Selamat) - Asumsi sederhana
     if (x > width - 50 && y >= 380) {
       saved = true;
     }
@@ -57,42 +100,56 @@ class Lemming {
       fill(0, 0, 255); // Biru untuk hidup
       stroke(0, 0, 255);
     }
-    // Gambar semut sederhana
-    // Simpan transformasi saat ini
+    
+    // Gambar semut sederhana (dari file asli Anda)
     pushMatrix();
-    translate(x, y); // Pindah ke posisi lemming
-    // Jika menghadap kiri, flip horizontal
+    translate(x, y); 
     if (!facingRight) {
       scale(-1, 1);
     }
-    // Kepala (lingkaran kecil)
     ellipse(0, -5, 6, 6);
-    // Antena (dua garis kecil dari kepala)
     line(-2, -7, -4, -9);
     line(2, -7, 4, -9);
-    // Thorax (tubuh tengah, elips)
     ellipse(0, 0, 8, 6);
-    // Abdomen (tubuh belakang, lingkaran)
     ellipse(0, 5, 10, 8);
-    // Kaki (6 kaki sederhana, garis)
-    // Kaki depan
     line(-3, -2, -5, 0);
     line(3, -2, 5, 0);
-    // Kaki tengah
     line(-2, 1, -4, 3);
     line(2, 1, 4, 3);
-    // Kaki belakang
     line(-1, 4, -3, 6);
     line(1, 4, 3, 6);
-    // Kembalikan transformasi
     popMatrix();
   }
+  
+  // --- MODIFIKASI: Mengisi fungsi applySkill ---
   void applySkill(String skill) {
-    //if (skill.equals("mining")) {
-    //  mining = true;
-    //  miningTimer = 300; // Durasi 5 detik (pada 60 FPS)
-    //}
+    // Hanya bisa menerima skill jika belum punya skill
+    if (currentSkill != null) return; 
+    
+    switch(skill) {
+      case "Builder": 
+        currentSkill = new Builder(); 
+        break;
+      case "Digger":  
+        currentSkill = new Digger(); 
+        break;
+      case "Blocker": 
+        currentSkill = new Blocker(); 
+        break;
+      case "Floater": 
+        currentSkill = new Floater(); 
+        break;
+      case "Basher":  
+        currentSkill = new Basher(); 
+        break;
+      case "Miner":   
+        currentSkill = new Miner(); 
+        break;
+      // "Bomber" dan "Climber" sudah dihapus sesuai permintaan
+    }
   }
+  // -------------------------------------------
+  
   boolean isDead() {
     return dead;
   }

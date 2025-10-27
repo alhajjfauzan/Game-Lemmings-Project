@@ -46,39 +46,32 @@ class UIManager {
 class Button {
   float x, y, w, h;
   String label;
-  SoundManager soundManager;  // Tambahkan referensi ke SoundManager
-  boolean wasHovered = false;  // Flag untuk melacak status hover sebelumnya
+  SoundManager soundManager;
+  boolean wasHovered = false;
 
-  Button(float x, float y, float w, float h, String label, SoundManager sm) {  // Konstruktor menerima SoundManager
+  Button(float x, float y, float w, float h, String label, SoundManager sm) {
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
     this.label = label;
-    this.soundManager = sm;  // Simpan referensi
+    this.soundManager = sm;
   }
 
   void display() {
     boolean currentlyHovered = isHovered();
-    
-    // Mulai loop suara saat mulai hover
+
+    // Jika baru masuk hover (dari tidak hover → hover)
     if (currentlyHovered && !wasHovered && soundManager != null) {
-      soundManager.play("hoverLoop");  // Mainkan suara dalam mode loop
+      soundManager.play("hover");
     }
-    // Hentikan suara saat berhenti hover
-    else if (!currentlyHovered && wasHovered && soundManager != null) {
-      soundManager.stop("hover");  // Hentikan suara hover
-    }
-    
-    // Update status hover untuk frame berikutnya
+
     wasHovered = currentlyHovered;
-    
-    // Set warna berdasarkan status hover
-    if (currentlyHovered) {
-      fill(60, 130, 250);
-    } else {
-      fill(40, 90, 200);
-    }
+
+    // Warna tombol
+    if (currentlyHovered) fill(60, 130, 250);
+    else fill(40, 90, 200);
+
     noStroke();
     rect(x, y, w, h, 10);
 

@@ -5,14 +5,16 @@ class LevelManager {
   PApplet parent;
   PFont font;
   Button btnLevel1, btnLevel2, btnBack;
+  SoundManager soundManager;
   int selectedLevel = 0;
 
-  LevelManager(PApplet p) {
+  LevelManager(PApplet p, SoundManager sm) {  // Ubah konstruktor untuk menerima SoundManager
     parent = p;
+    soundManager = sm;  // Simpan referensi
     font = createFont("Arial", 24);
-    btnLevel1 = new Button(width / 2 - 100, height / 2 - 80, 200, 50, "LEVEL 1");
-    btnLevel2 = new Button(width / 2 - 100, height / 2, 200, 50, "LEVEL 2");
-    btnBack   = new Button(width / 2 - 100, height / 2 + 80, 200, 50, "BACK");
+    btnLevel1 = new Button(width / 2 - 100, height / 2 - 80, 200, 50, "LEVEL 1", soundManager);  // Pass soundManager ke Button
+    btnLevel2 = new Button(width / 2 - 100, height / 2, 200, 50, "LEVEL 2", soundManager);  // Pass soundManager ke Button
+    btnBack   = new Button(width / 2 - 100, height / 2 + 80, 200, 50, "BACK", soundManager);  // Pass soundManager ke Button
   }
 
   void draw() {

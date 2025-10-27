@@ -5,12 +5,14 @@ class UIManager {
   PApplet parent;
   PFont font;
   Button btnPlay, btnQuit;
+  SoundManager soundManager;  // Tambahkan referensi ke SoundManager
 
-  UIManager(PApplet p) {
+  UIManager(PApplet p, SoundManager sm) {  // Ubah konstruktor untuk menerima SoundManager
     parent = p;
+    soundManager = sm;  // Simpan referensi
     font = createFont("Arial", 24);
-    btnPlay = new Button(width / 2 - 100, height / 2 - 30, 200, 50, "PLAY");
-    btnQuit = new Button(width / 2 - 100, height / 2 + 40, 200, 50, "QUIT");
+    btnPlay = new Button(width / 2 - 100, height / 2 - 30, 200, 50, "PLAY", soundManager);  // Pass soundManager ke Button
+    btnQuit = new Button(width / 2 - 100, height / 2 + 40, 200, 50, "QUIT", soundManager);  // Pass soundManager ke Button
   }
 
   void draw() {
@@ -44,17 +46,35 @@ class UIManager {
 class Button {
   float x, y, w, h;
   String label;
+  SoundManager soundManager;  // Tambahkan referensi ke SoundManager
+  boolean wasHovered = false;  // Flag untuk melacak status hover sebelumnya
 
-  Button(float x, float y, float w, float h, String label) {
+  Button(float x, float y, float w, float h, String label, SoundManager sm) {  // Konstruktor menerima SoundManager
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
     this.label = label;
+    this.soundManager = sm;  // Simpan referensi
   }
 
   void display() {
-    if (isHovered()) {
+    boolean currentlyHovered = isHovered();
+    
+    // Mulai loop suara saat mulai hover
+    if (currentlyHovered && !wasHovered && soundManager != null) {
+      soundManager.play("hoverLoop");  // Mainkan suara dalam mode loop
+    }
+    // Hentikan suara saat berhenti hover
+    else if (!currentlyHovered && wasHovered && soundManager != null) {
+      soundManager.stop("hover");  // Hentikan suara hover
+    }
+    
+    // Update status hover untuk frame berikutnya
+    wasHovered = currentlyHovered;
+    
+    // Set warna berdasarkan status hover
+    if (currentlyHovered) {
       fill(60, 130, 250);
     } else {
       fill(40, 90, 200);

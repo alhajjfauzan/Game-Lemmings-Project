@@ -12,20 +12,20 @@ MainGame mainGame;
 
 String gameState = "menu"; // menu, levelSelect, playing
 int currentLevel = 0;
-
-// contoh variabel permainan (sementara)
 boolean levelStarted = false;
 
 void setup() {
   size(800, 600);
-  uiManager = new UIManager(this);
-  levelManager = new LevelManager(this);
-  
+  soundManager = new SoundManager(this);
+  uiManager = new UIManager(this, soundManager);
+  levelManager = new LevelManager(this, soundManager);
   mainGame = this; // Simpan referensi global
   terrain = new Terrain();
   lemmings = new ArrayList<Lemming>();
-  soundManager = new SoundManager(this);
   effect3d = new Effect3D();
+  
+  // Mainkan BGM opening saat game dimulai (di menu)
+  soundManager.play("bgm");
 }
 
 void draw() {
@@ -65,9 +65,13 @@ void keyPressed() {
   if (key == 'm' || key == 'M') {
     // kembali ke pemilihan level, bukan menu
     gameState = "levelSelect";
+    // Ganti ke BGM opening saat kembali ke levelSelect
+    soundManager.play("bgm");
   }
   if (key == 'p' || key == 'P') {
     gameState = "levelSelect";
+    // Ganti ke BGM opening saat kembali ke levelSelect
+    soundManager.play("bgm");
   }
 }
 
@@ -86,12 +90,14 @@ void startLevel(int level) {
   lemmings.add(new Lemming(100, 350)); // Tambah 1 lemming di posisi awal
   // Load ulang terrain untuk level ini
   terrain.loadLevel();
+  
+  // Mainkan BGM gameplay saat level dimulai
+  soundManager.play("gameplay");
 }
 
 void drawLevel() {
   // Gambar elemen game, bukan cuma teks
   background(40, 100, 150);
-  
   terrain.draw(); // Gambar terrain
   
   // Update dan gambar semua lemming
